@@ -1,10 +1,19 @@
+import { Routes, Route, Navigate } from 'react-router-dom'
+import ListPage from './pages/ListPage'
+import ItemPage from './pages/ItemPage'
+import StatsPage from './pages/StatsPage'
+import NotFoundPage from './pages/NotFoundPage'
 import './App.css'
 
 function App() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold underline">Hello World</h1>
-    </div>
+    <Routes>
+      <Route path="/list" element={<ListPage />} />
+      <Route path="/item/:id" element={<ItemPage />} />
+      <Route path="/stats" element={<StatsPage />} />
+      <Route path="/" element={<Navigate to="/list" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   )
 }
 
