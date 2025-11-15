@@ -18,6 +18,41 @@ function ListPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
+    const savedFilters = sessionStorage.getItem('listFilters');
+    if (savedFilters) {
+      try {
+        const filters = JSON.parse(savedFilters) as {
+          search: string;
+          selectedStatuses: AdStatus[];
+          categoryId: number | null;
+          minPrice: number | null;
+          maxPrice: number | null;
+          sortBy: SortField;
+          sortOrder: SortOrder;
+        };
+
+        if (filters.search) setSearch(filters.search);
+        if (filters.selectedStatuses && filters.selectedStatuses.length > 0) {
+          setSelectedStatuses(filters.selectedStatuses);
+        }
+        if (filters.categoryId !== null && filters.categoryId !== undefined) {
+          setCategoryId(filters.categoryId);
+        }
+        if (filters.minPrice !== null && filters.minPrice !== undefined) {
+          setMinPrice(filters.minPrice);
+        }
+        if (filters.maxPrice !== null && filters.maxPrice !== undefined) {
+          setMaxPrice(filters.maxPrice);
+        }
+        if (filters.sortBy) setSortBy(filters.sortBy);
+        if (filters.sortOrder) setSortOrder(filters.sortOrder);
+      } catch {
+        //
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -55,10 +90,17 @@ function ListPage() {
         setAds(data.ads);
         setPagination(data.pagination);
         
-        console.log('Загружено объявлений:', data.ads.length);
-        console.log('Пагинация:', data.pagination);
-      } catch (error) {
-        console.error('Ошибка при загрузке данных:', error);
+        sessionStorage.setItem('listFilters', JSON.stringify({
+          search,
+          selectedStatuses,
+          categoryId,
+          minPrice,
+          maxPrice,
+          sortBy,
+          sortOrder
+        }));
+      } catch{
+        //
       } finally {
         setLoading(false);
       }
@@ -146,6 +188,7 @@ function ListPage() {
     setSortBy('createdAt');
     setSortOrder('desc');
     setCurrentPage(1);
+    sessionStorage.removeItem('listFilters');
   };
 
   return (

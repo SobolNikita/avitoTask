@@ -27,19 +27,14 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     config.body = JSON.stringify(body);
   }
 
-  try {
-    const response = await fetch(url, config);
+  const response = await fetch(url, config);
 
-    if (!response.ok) {
-      throw new Error(`Error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('API request failed:', error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(`Error! status: ${response.status}`);
   }
+
+  const data = await response.json();
+  return data;
 }
 
 
