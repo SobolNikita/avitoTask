@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { approveAd, rejectAd, requestChanges } from '../api/ads';
 import type { Advertisement } from '../types/ads';
 
@@ -40,6 +40,30 @@ const AdvAction = ({adId, ad, onSuccess}: AdvActionProps) => {
     const hasModerationHistory = ad?.moderationHistory && ad.moderationHistory.length > 0;
     const isOtherReason = selectedReason === 'Другое';
 
+    const handleApprove = useCallback(async () => {
+        if (hasModerationHistory) return;
+        
+        try {
+            setLoading(true);
+            setError(null);
+            
+            await approveAd(adId);
+            
+            onSuccess();
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
+            setError(`Ошибка при одобрении: ${errorMessage}`);
+        } finally {
+            setLoading(false);
+        }
+    }, [hasModerationHistory, adId, onSuccess]);
+    
+    const handleRejectClick = useCallback(() => {
+        if (hasModerationHistory) return;
+        setShowRejectModal(true);
+        setError(null);
+    }, [hasModerationHistory]);
+
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
             const activeElement = document.activeElement;
@@ -63,31 +87,7 @@ const AdvAction = ({adId, ad, onSuccess}: AdvActionProps) => {
         return () => {
             window.removeEventListener('keydown', handleKeyPress);
         };
-    }, []);
-
-    const handleApprove = async () => {
-        if (hasModerationHistory) return;
-        
-        try {
-            setLoading(true);
-            setError(null);
-            
-            await approveAd(adId);
-            
-            onSuccess();
-        } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
-            setError(`Ошибка при одобрении: ${errorMessage}`);
-        } finally {
-            setLoading(false);
-        }
-    };
-    
-    const handleRejectClick = () => {
-        if (hasModerationHistory) return;
-        setShowRejectModal(true);
-        setError(null);
-    };
+    }, [handleApprove, handleRejectClick]);
 
     const handleRejectSubmit = async () => {
         if (!selectedReason) {
