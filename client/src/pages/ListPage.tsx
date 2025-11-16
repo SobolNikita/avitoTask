@@ -16,6 +16,7 @@ function ListPage() {
   const [sortBy, setSortBy] = useState<SortField>('createdAt');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [filtersInitialized, setFiltersInitialized] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -30,30 +31,45 @@ function ListPage() {
           maxPrice: number | null;
           sortBy: SortField;
           sortOrder: SortOrder;
+          currentPage?: number;
         };
 
-        if (filters.search) setSearch(filters.search);
+        if (filters.search !== undefined) setSearch(filters.search);
         if (filters.selectedStatuses && filters.selectedStatuses.length > 0) {
           setSelectedStatuses(filters.selectedStatuses);
+        } else {
+          setSelectedStatuses([]);
         }
         if (filters.categoryId !== null && filters.categoryId !== undefined) {
           setCategoryId(filters.categoryId);
+        } else {
+          setCategoryId(null);
         }
         if (filters.minPrice !== null && filters.minPrice !== undefined) {
           setMinPrice(filters.minPrice);
+        } else {
+          setMinPrice(null);
         }
         if (filters.maxPrice !== null && filters.maxPrice !== undefined) {
           setMaxPrice(filters.maxPrice);
+        } else {
+          setMaxPrice(null);
         }
         if (filters.sortBy) setSortBy(filters.sortBy);
         if (filters.sortOrder) setSortOrder(filters.sortOrder);
+        if (filters.currentPage) setCurrentPage(filters.currentPage);
       } catch {
         //
       }
     }
+    setFiltersInitialized(true);
   }, []);
 
   useEffect(() => {
+    if (!filtersInitialized) {
+      return;
+    }
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -98,7 +114,8 @@ function ListPage() {
           minPrice,
           maxPrice,
           sortBy,
-          sortOrder
+          sortOrder,
+          currentPage
         }));
       } catch{
         //
@@ -108,7 +125,7 @@ function ListPage() {
     };
 
     fetchData();
-  }, [search, selectedStatuses, categoryId, minPrice, maxPrice, sortBy, sortOrder, currentPage]);
+  }, [search, selectedStatuses, categoryId, minPrice, maxPrice, sortBy, sortOrder, currentPage, filtersInitialized]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
