@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { approveAd, rejectAd, requestChanges } from '../api/ads';
 import type { Advertisement } from '../types/ads';
 
@@ -39,6 +39,31 @@ const AdvAction = ({adId, ad, onSuccess}: AdvActionProps) => {
 
     const hasModerationHistory = ad?.moderationHistory && ad.moderationHistory.length > 0;
     const isOtherReason = selectedReason === 'Другое';
+
+    useEffect(() => {
+        const handleKeyPress = (e: KeyboardEvent) => {
+            const activeElement = document.activeElement;
+            const isInputFocused = activeElement instanceof HTMLInputElement || 
+                                    activeElement instanceof HTMLTextAreaElement ||
+                                    (activeElement instanceof HTMLElement && activeElement.isContentEditable);
+            
+            if(e.key == 'a' || e.key == 'ф' || e.key == 'A' || e.key == 'Ф'){
+                if(!isInputFocused){
+                    e.preventDefault();
+                    handleApprove();
+                }
+            }else if(e.key == 'd' || e.key == 'в' || e.key == 'D' || e.key == 'В'){
+                if(!isInputFocused){
+                    e.preventDefault();
+                    handleRejectClick();
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyPress);
+        return () => {
+            window.removeEventListener('keydown', handleKeyPress);
+        };
+    }, []);
 
     const handleApprove = async () => {
         if (hasModerationHistory) return;

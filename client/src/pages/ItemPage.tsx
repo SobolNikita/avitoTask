@@ -15,6 +15,30 @@ function ItemPage() {
   const [prevAdId, setPrevAdId] = useState<number | null>(null);
   const [nextAdId, setNextAdId] = useState<number | null>(null);
   
+  useEffect(()=>{
+    const handleChangePage = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInputFocused = activeElement instanceof HTMLInputElement || 
+                              activeElement instanceof HTMLTextAreaElement ||
+                              (activeElement instanceof HTMLElement && activeElement.isContentEditable);
+      if (e.key == 'ArrowRight' || e.key == '→') {
+        if(!isInputFocused){
+          e.preventDefault();
+          navigate(`/item/${nextAdId}`);
+        }
+      }else if(e.key == 'ArrowLeft' || e.key == '←'){
+        if(!isInputFocused){
+          e.preventDefault();
+          navigate(`/item/${prevAdId}`);
+        }
+      }
+    }
+    window.addEventListener('keydown', handleChangePage);
+    return () => {
+      window.removeEventListener('keydown', handleChangePage);
+    }
+  }, [nextAdId, prevAdId, navigate]);
+  
   const fetchData = useCallback(async () => {
     if (!id) {
       setLoading(false);

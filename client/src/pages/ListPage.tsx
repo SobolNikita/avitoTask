@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { get } from '../api/client';
 import type { Advertisement, AdStatus, SortField, SortOrder, Pagination } from '../types/ads';
 import AdCard from '../components/AdCard';
@@ -16,6 +16,7 @@ function ListPage() {
   const [sortBy, setSortBy] = useState<SortField>('createdAt');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const savedFilters = sessionStorage.getItem('listFilters');
@@ -108,6 +109,27 @@ function ListPage() {
 
     fetchData();
   }, [search, selectedStatuses, categoryId, minPrice, maxPrice, sortBy, sortOrder, currentPage]);
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if ((e.key === '.' || e.key === '/') && searchInputRef.current) {
+        const activeElement = document.activeElement;
+        const isInputFocused = activeElement instanceof HTMLInputElement || 
+                              activeElement instanceof HTMLTextAreaElement ||
+                              (activeElement instanceof HTMLElement && activeElement.isContentEditable);
+        
+        if (!isInputFocused) {
+          e.preventDefault();
+          searchInputRef.current.focus();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, []);
 
 
   const statusOptions: { value: AdStatus; label: string }[] = [
@@ -203,6 +225,7 @@ function ListPage() {
             Поиск по названию
           </label>
           <input
+            ref={searchInputRef}
             type="text"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
