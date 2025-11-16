@@ -34,7 +34,6 @@ function AdCard({ ad }: AdCardProps) {
     return statusMap[status] || status;
   };
 
-
   const getStatusColor = (status: string) => {
     const colorMap: Record<string, string> = {
       pending: 'bg-yellow-100 text-yellow-800',

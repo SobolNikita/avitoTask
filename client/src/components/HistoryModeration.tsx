@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { getModerationHistory } from '../api/ads';
 import type { ModerationHistory } from '../types/ads';
 
-
 const HistoryModeration = ({ adId }: { adId: number }) => {
   const [history, setHistory] = useState<ModerationHistory[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

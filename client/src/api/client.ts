@@ -1,15 +1,12 @@
 import { getApiUrl } from './config'
 
-
 type HttpMethod = 'GET' | 'POST';
-
 
 interface RequestOptions {
   method?: HttpMethod;
   headers?: Record<string, string>;
   body?: unknown;
 }
-
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', headers = {}, body } = options;
@@ -37,17 +34,13 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   return data;
 }
 
-
 export function get<T>(endpoint: string, headers?: Record<string, string>): Promise<T> {
   return request<T>(endpoint, { method: 'GET', headers });
 }
 
-
 export function post<T>(endpoint: string, body?: unknown, headers?: Record<string, string>): Promise<T> {
   return request<T>(endpoint, { method: 'POST', body, headers });
 }
-
-
 
 export const api = {
   get,
